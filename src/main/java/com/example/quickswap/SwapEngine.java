@@ -8,13 +8,18 @@ import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.IdentityHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /** Polls rule hotkeys every client tick and performs the hotbar swaps. */
 public final class SwapEngine {
     private SwapEngine() {}
 
+    private static final boolean IS_MAC =
+            System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("mac");
+
     private static final class State {
+        boolean initialized;
         boolean wasDown;
         int returnSlot = -1;
         int swappedTo = -1;
@@ -40,18 +45,39 @@ public final class SwapEngine {
             State st = STATES.computeIfAbsent(rule, r -> new State());
 
             if (!rule.enabled || rule.keyCode < 0) {
+                st.initialized = false;
                 st.wasDown = false;
                 st.returnSlot = -1;
                 continue;
             }
 
             boolean down = GLFW.glfwGetKey(window, rule.keyCode) == GLFW.GLFW_PRESS;
-            boolean pressed = down && !st.wasDown;
-            boolean released = !down && st.wasDown;
+
+            // First time we see this rule: just remember the key state so we don't
+            // fire because Caps Lock (or a held key) was already on when the world loaded.
+            if (!st.initialized) {
+                st.initialized = true;
+                st.wasDown = down;
+                continue;
+            }
+
+            // macOS reports Caps Lock as "pressed while ON, released while OFF", so every
+            // physical tap is a state change instead of a press+release pair.
+            boolean capsTap = IS_MAC && rule.keyCode == GLFW.GLFW_KEY_CAPS_LOCK;
+
+            boolean pressed;
+            boolean released;
+            if (capsTap) {
+                pressed = down != st.wasDown;
+                released = false;
+            } else {
+                pressed = down && !st.wasDown;
+                released = !down && st.wasDown;
+            }
             st.wasDown = down;
 
             if (pressed && !screenOpen) {
-                onPress(client, player, rule, st, cfg);
+                onPress(client, player, rule, st, cfg, capsTap);
             }
             if (released && rule.swapBack == SwapRule.SwapBack.ON_RELEASE) {
                 swapBack(client, player, st, cfg);
@@ -64,8 +90,13 @@ public final class SwapEngine {
         }
     }
 
-    private static void onPress(MinecraftClient client, ClientPlayerEntity player, SwapRule rule, State st, QuickSwapConfig cfg) {
-        if (rule.swapBack == SwapRule.SwapBack.TOGGLE && st.returnSlot >= 0) {
+    private static void onPress(MinecraftClient client, ClientPlayerEntity player, SwapRule rule,
+                                State st, QuickSwapConfig cfg, boolean capsTap) {
+        // Caps Lock on macOS can't be "held", so "swap back on release" becomes "tap again to swap back".
+        boolean toggleLike = rule.swapBack == SwapRule.SwapBack.TOGGLE
+                || (capsTap && rule.swapBack == SwapRule.SwapBack.ON_RELEASE);
+
+        if (toggleLike && st.returnSlot >= 0) {
             swapBack(client, player, st, cfg);
             return;
         }
