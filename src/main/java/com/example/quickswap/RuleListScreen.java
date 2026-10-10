@@ -28,12 +28,16 @@ public class RuleListScreen extends Screen {
         addDrawableChild(ButtonWidget.builder(Text.literal("Mod: " + onOff(cfg.enabled)), b -> {
             cfg.enabled = !cfg.enabled;
             b.setMessage(Text.literal("Mod: " + onOff(cfg.enabled)));
-        }).dimensions(left, 26, 158, 20).build());
+        }).dimensions(left, 26, 104, 20).build());
 
         addDrawableChild(ButtonWidget.builder(Text.literal("Messages: " + onOff(cfg.showMessages)), b -> {
             cfg.showMessages = !cfg.showMessages;
             b.setMessage(Text.literal("Messages: " + onOff(cfg.showMessages)));
-        }).dimensions(left + 162, 26, 158, 20).build());
+        }).dimensions(left + 108, 26, 104, 20).build());
+
+        addDrawableChild(ButtonWidget.builder(Text.literal("Enchant..."),
+                b -> client.setScreen(new EnchantConfigScreen(this)))
+                .dimensions(left + 216, 26, 104, 20).build());
 
         // Rule rows
         perPage = Math.max(1, Math.min(8, (height - 52 - 62) / 24));
@@ -83,8 +87,13 @@ public class RuleListScreen extends Screen {
             client.setScreen(new RuleEditScreen(this, r));
         }).dimensions(left + 160, navY, 160, 20).build());
 
+        addDrawableChild(ButtonWidget.builder(Text.literal("Book fill: " + onOff(cfg.bookFill)), b -> {
+            cfg.bookFill = !cfg.bookFill;
+            b.setMessage(Text.literal("Book fill: " + onOff(cfg.bookFill)));
+        }).dimensions(left, height - 28, 150, 20).build());
+
         addDrawableChild(ButtonWidget.builder(Text.literal("Done"), b -> close())
-                .dimensions(cx - 100, height - 28, 200, 20).build());
+                .dimensions(left + 160, height - 28, 160, 20).build());
     }
 
     @Override

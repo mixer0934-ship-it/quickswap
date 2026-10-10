@@ -18,7 +18,9 @@ public class QuickSwapConfig {
 
     public boolean enabled = true;
     public boolean showMessages = true;
+    public boolean bookFill = true;
     public List<SwapRule> rules = new ArrayList<>();
+    public EnchantCycleConfig enchant = EnchantCycleConfig.defaults();
 
     public static QuickSwapConfig get() {
         return instance;
@@ -35,6 +37,8 @@ public class QuickSwapConfig {
                 QuickSwapConfig loaded = GSON.fromJson(r, QuickSwapConfig.class);
                 if (loaded != null) {
                     if (loaded.rules == null) loaded.rules = new ArrayList<>();
+                    if (loaded.enchant == null) loaded.enchant = EnchantCycleConfig.defaults();
+                    if (loaded.enchant.targets == null) loaded.enchant.targets = new ArrayList<>();
                     instance = loaded;
                 }
             } catch (Exception e) {

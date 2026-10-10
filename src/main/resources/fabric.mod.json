@@ -4,12 +4,18 @@
   "version": "${version}",
   "name": "QuickSwap",
   "description": "Rule-based hotbar swapping with an in-game GUI. Hold item X, press a key, swap to item Y (and optionally back).",
-  "authors": ["You"],
+  "authors": [
+    "You"
+  ],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "client": ["com.example.quickswap.QuickSwapClient"],
-    "modmenu": ["com.example.quickswap.ModMenuIntegration"]
+    "client": [
+      "com.example.quickswap.QuickSwapClient"
+    ],
+    "modmenu": [
+      "com.example.quickswap.ModMenuIntegration"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.18.1",
@@ -19,5 +25,8 @@
   },
   "suggests": {
     "modmenu": "*"
-  }
+  },
+  "mixins": [
+    "quickswap.mixins.json"
+  ]
 }

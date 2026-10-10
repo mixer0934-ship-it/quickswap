@@ -21,6 +21,7 @@ public class QuickSwapClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         QuickSwapConfig.load();
+        EnchantCycler.registerOverlay();
 
         KeyBinding.Category category = KeyBinding.Category.create(Identifier.of(MOD_ID, "main"));
         openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -42,6 +43,7 @@ public class QuickSwapClient implements ClientModInitializer {
                 }
             }
             SwapEngine.tick(client);
+            EnchantCycler.tick(client);
         });
     }
 }
