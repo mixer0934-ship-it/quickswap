@@ -51,7 +51,7 @@ public class RuleListScreen extends Screen {
                 b.setMessage(Text.literal(onOff(rule.enabled)));
             }).dimensions(left, y, 36, 20).build());
 
-            String keyText = rule.keyCode < 0 ? "unbound" : RuleEditScreen.keyName(rule.keyCode);
+            String keyText = rule.keyCode < 0 ? "unbound" : RuleEditScreen.bindName(rule);
             addDrawableChild(ButtonWidget.builder(Text.literal(rule.name + "  [" + keyText + "]"),
                     b -> client.setScreen(new RuleEditScreen(this, rule)))
                     .dimensions(left + 40, y, 240, 20).build());

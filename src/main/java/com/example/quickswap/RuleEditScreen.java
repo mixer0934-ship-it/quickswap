@@ -70,6 +70,20 @@ public class RuleEditScreen extends Screen {
         return InputUtil.Type.KEYSYM.createFromCode(code).getLocalizedText().getString();
     }
 
+    public static String mouseName(int button) {
+        return switch (button) {
+            case 0 -> "Left Mouse";
+            case 1 -> "Right Mouse";
+            case 2 -> "Middle Mouse";
+            default -> "Mouse Button " + (button + 1);
+        };
+    }
+
+    /** Human-readable name of whatever the rule is bound to. */
+    public static String bindName(SwapRule r) {
+        return r.mouse ? mouseName(r.keyCode) : keyName(r.keyCode);
+    }
+
     @Override
     protected void init() {
         int w = 240;
@@ -119,6 +133,7 @@ public class RuleEditScreen extends Screen {
         }).dimensions(left, Y_KEY, w - 64, 20).build());
         addDrawableChild(ButtonWidget.builder(Text.literal("Clear"), b -> {
             rule.keyCode = -1;
+            rule.mouse = false;
             listening = false;
             keyButton.setMessage(keyLabel());
         }).dimensions(left + w - 60, Y_KEY, 60, 20).build());
@@ -147,9 +162,9 @@ public class RuleEditScreen extends Screen {
     }
 
     private Text keyLabel() {
-        if (listening) return Text.literal("> press a key (Esc cancels) <");
+        if (listening) return Text.literal("> press key / mouse (Esc) <");
         if (rule.keyCode < 0) return Text.literal("Hotkey: not bound");
-        return Text.literal("Hotkey: " + keyName(rule.keyCode));
+        return Text.literal("Hotkey: " + bindName(rule));
     }
 
     private static String cycle(String[] list, String current) {
@@ -226,6 +241,7 @@ public class RuleEditScreen extends Screen {
             listening = false;
             if (input.key() != GLFW.GLFW_KEY_ESCAPE) {
                 rule.keyCode = input.key();
+                rule.mouse = false;
             }
             keyButton.setMessage(keyLabel());
             return true;
@@ -261,6 +277,7 @@ public class RuleEditScreen extends Screen {
         if (listening && input.key() == GLFW.GLFW_KEY_CAPS_LOCK) {
             listening = false;
             rule.keyCode = GLFW.GLFW_KEY_CAPS_LOCK;
+            rule.mouse = false;
             keyButton.setMessage(keyLabel());
             return true;
         }
@@ -269,6 +286,16 @@ public class RuleEditScreen extends Screen {
 
     @Override
     public boolean mouseClicked(Click click, boolean doubled) {
+        if (listening) {
+            int b = click.button();
+            if (b >= 0 && b <= 7) {
+                rule.keyCode = b;
+                rule.mouse = true;
+            }
+            listening = false;
+            keyButton.setMessage(keyLabel());
+            return true;
+        }
         Sug active = activeSug();
         if (active != null && active.visible()) {
             int row = rowAt(active, click.x(), click.y());

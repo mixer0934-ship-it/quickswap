@@ -30,8 +30,11 @@ public class SwapRule {
     /** What to swap to: item id, #tag, word (matches part of item id), or slot:1-9 */
     public String target = "";
 
-    /** GLFW key code, -1 = unbound */
+    /** GLFW key code (or mouse button number when mouse == true), -1 = unbound */
     public int keyCode = -1;
+
+    /** true = keyCode is a mouse button (0 left, 1 right, 2 middle, 3+ side buttons) */
+    public boolean mouse = false;
 
     public SwapBack swapBack = SwapBack.NONE;
 

@@ -51,7 +51,9 @@ public final class SwapEngine {
                 continue;
             }
 
-            boolean down = GLFW.glfwGetKey(window, rule.keyCode) == GLFW.GLFW_PRESS;
+            boolean down = rule.mouse
+                    ? GLFW.glfwGetMouseButton(window, rule.keyCode) == GLFW.GLFW_PRESS
+                    : GLFW.glfwGetKey(window, rule.keyCode) == GLFW.GLFW_PRESS;
 
             // First time we see this rule: just remember the key state so we don't
             // fire because Caps Lock (or a held key) was already on when the world loaded.
@@ -63,7 +65,7 @@ public final class SwapEngine {
 
             // macOS reports Caps Lock as "pressed while ON, released while OFF", so every
             // physical tap is a state change instead of a press+release pair.
-            boolean capsTap = IS_MAC && rule.keyCode == GLFW.GLFW_KEY_CAPS_LOCK;
+            boolean capsTap = IS_MAC && !rule.mouse && rule.keyCode == GLFW.GLFW_KEY_CAPS_LOCK;
 
             boolean pressed;
             boolean released;
